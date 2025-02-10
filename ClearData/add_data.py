@@ -1,7 +1,7 @@
 class AddData:
     @staticmethod
     def add_data(statistics_team_1_dict, statistics_team_2_dict, team_1_name, team_2_name, first_team_score,
-                 second_team_score, current_season):
+                 second_team_score, current_season) -> tuple:
         # Dodawanie przeciwnika
         statistics_team_1_dict["Opponent"] = team_2_name
         statistics_team_2_dict["Opponent"] = team_1_name

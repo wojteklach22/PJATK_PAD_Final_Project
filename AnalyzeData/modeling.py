@@ -1,7 +1,12 @@
+from typing import TYPE_CHECKING
+from typing import Any
+
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 from ClearData.convert_data import ConvertData
 
@@ -10,23 +15,34 @@ class Modeling:
     def __init__(self, filename):
         self.filename = filename
 
-    def modeling(self):
-        df = pd.read_csv(self.filename)
+    def modeling(self) -> None:
+        # Wczytanie danych
+        df: DataFrame = pd.read_csv(self.filename)
 
         convert_data = ConvertData()
+        df: DataFrame = df.map(convert_data.convert_percentage)
 
-        df = df.map(convert_data.convert_percentage)
+        # Column for Manchater Utd we want to see the results vs this lcub
+        df["Opponent_ManUtd"] = df["Opponent"].apply(lambda x: 1 if x == "Manchester Utd" else 0)
 
-        # Przygotowanie danych
-        x = df[["Expected Goals (xG)", "Ball Possession", "Goal Attempts", "Shots on Goal"]]
-        y = df["Result"].apply(lambda x: 1 if x == "Win" else 0)
+        train_df: DataFrame = df[df["Opponent"] != "Manchester Utd"]
+        test_df: DataFrame = df[df["Opponent"] == "Manchester Utd"]
 
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+        features: list[str] = ["Ball Possession", "Goal Attempts", "Shots on Goal"]
+
+        x_train: DataFrame = train_df[features]
+        y_train: DataFrame = train_df["Result"].apply(lambda x: 1 if x == "Win" else 0)
+
+        x_test: DataFrame = test_df[features]
+        y_test: DataFrame = test_df["Result"].apply(lambda x: 1 if x == "Win" else 0)
 
         # Regresja logistyczna
-        model = LogisticRegression()
+        model: LogisticRegression = LogisticRegression()
         model.fit(x_train, y_train)
 
-        # Ocena modelu
-        y_pred = model.predict(x_test)
+        # Predykcja wyników dla Manchester Utd
+        y_pred: Any = model.predict(x_test)
+
+        # Wyświetlenie raportu klasyfikacji
+        print("Wyniki modelu dla meczów przeciwko Manchester Utd:\n")
         print(classification_report(y_test, y_pred))

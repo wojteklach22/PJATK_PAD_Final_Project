@@ -1,9 +1,10 @@
 import re
+from typing import Any
 
 
 class ConvertData:
     @staticmethod
-    def convert_percentage(value):
+    def convert_percentage(value: Any) -> float | Any:
         if isinstance(value, str):
             value = value.strip()
 

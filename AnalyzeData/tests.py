@@ -1,27 +1,32 @@
+from typing import TYPE_CHECKING
+
 import pandas as pd
 from scipy import stats
 
 from ClearData.convert_data import ConvertData
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 
 class Tests:
     def __init__(self, filename):
         self.filename = filename
 
-    def test_chi_square(self):
+    def test_chi_square(self) -> None:
 
-        df = pd.read_csv(self.filename)
+        df: DataFrame = pd.read_csv(self.filename)
 
-        convert_data = ConvertData()
+        convert_data: ConvertData = ConvertData()
 
-        df = df.map(convert_data.convert_percentage)
+        df: DataFrame = df.map(convert_data.convert_percentage)
 
         # Odrzucenie wierszy, gdzie "Expected Goals (xG)" jest <= 0, ponieważ statystyka ta została wprowadzona
         # dopiero w drugiej połowie sezonu 2023
-        df = df[df["Expected Goals (xG)"] > 0]
+        df: DataFrame = df[df["Expected Goals (xG)"] > 0]
 
         # Tabela krzyżowa
-        result_xg_crosstab = pd.crosstab(df['Ball Possession'], df['Result'])
+        result_xg_crosstab: DataFrame = pd.crosstab(df['Ball Possession'], df['Result'])
 
         # Test chi-kwadrat
         chi2_stat, p_value, dof, expected = stats.chi2_contingency(result_xg_crosstab)
@@ -33,7 +38,7 @@ class Tests:
             print("Brak zależności między Ball Possession a wynikiem meczu.")
 
         # Tabela krzyżowa
-        result_xg_crosstab = pd.crosstab(df['Expected Goals (xG)'], df['Result'])
+        result_xg_crosstab: DataFrame = pd.crosstab(df['Expected Goals (xG)'], df['Result'])
 
         # Test chi-kwadrat
         chi2_stat, p_value, dof, expected = stats.chi2_contingency(result_xg_crosstab)
@@ -44,13 +49,13 @@ class Tests:
         else:
             print("Brak zależności między Expected Goals (xG) a wynikiem meczu.")
 
-    def correlation_test(self):
+    def correlation_test(self) -> None:
         # Test korelacji między Expected Goals a Goals
-        df = pd.read_csv(self.filename)
+        df:DataFrame = pd.read_csv(self.filename)
 
-        convert_data = ConvertData()
+        convert_data: ConvertData = ConvertData()
 
-        df = df.map(convert_data.convert_percentage)
+        df: DataFrame = df.map(convert_data.convert_percentage)
 
         correlation, p_value = stats.pearsonr(df['Expected Goals (xG)'], df['Goals scored'])
 

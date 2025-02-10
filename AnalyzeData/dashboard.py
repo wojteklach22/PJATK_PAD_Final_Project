@@ -1,12 +1,17 @@
 import re
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 import streamlit as st
+from typing import Any
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 
-def convert_percentage(value):
+def convert_percentage(value: Any) -> float | Any:
     if isinstance(value, str):
         value = value.strip()
 
@@ -26,9 +31,9 @@ def convert_percentage(value):
 
 @st.cache
 def load_data():
-    df = pd.read_csv("Output/Arsenal.csv")
+    df: DataFrame = pd.read_csv("Output/Arsenal.csv")
 
-    team_mapping = {
+    team_mapping:  dict[str, int] = {
         "Arsenal": 1, "Aston Villa": 2, "Bournemouth": 3, "Brentford": 4, "Brighton": 5, "Burnley": 6, "Cardiff": 7,
         "Chelsea": 8,
         "Crystal Palace": 9, "Everton": 10, "Fulham": 11, "Huddersfield": 12, "Hull": 13, "Ipswich": 14, "Leeds": 15,
